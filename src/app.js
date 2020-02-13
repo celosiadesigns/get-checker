@@ -2,11 +2,16 @@ function reloadPage() {
   location.reload();
 }
 
+function pause() {
+  clearInterval(refreshTime);
+  checkTime.textContent = 'PAUSED';
+}
+
 let checkTime = document.getElementById('checkTime');
 let seconds = 0;
 let duration = 300;
 
-setInterval(function() {
+let refreshTime = setInterval(function() {
   if (seconds === duration) {
     checkTime.textContent = seconds + ' seconds since last checked';
     reloadPage();

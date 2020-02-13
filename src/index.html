@@ -16,9 +16,11 @@
     <p>Web77: <span id="web77">Disabled</span></p>
 
     <button onclick="reloadPage()">Refresh Now</button>
+    <button id="pauseButton" onclick="pause()">Pause</button>
     <p>
       Currently servers are automatically checked every 5 minutes. If you
-      receive a 401 error, try refreshing.
+      receive a 401 error, try refreshing. Currently if you pause, you must
+      refresh to resume.
     </p>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="app.js"></script>
