@@ -3,26 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <title>Server Status</title>
+    <link rel="stylesheet" href="materialize.min.css" />
     <link rel="stylesheet" href="index.css" />
   </head>
-  <body>
-    <h1>Server Status</h1>
-    <h3>Last Checked: <span id="checkTime"></span></h3>
-    <p>Web22: <span id="web22"></span></p>
-    <p>Web25: <span id="web25"></span></p>
-    <p>Web71: <span id="web71"></span></p>
-    <p>Web75: <span id="web75"></span></p>
-    <p>Web76: <span id="web76"></span></p>
-    <p>Web77: <span id="web77">Disabled</span></p>
-
-    <button onclick="reloadPage()">Refresh Now</button>
-    <button id="pauseButton" onclick="pause()">Pause</button>
-    <p>
-      Currently servers are automatically checked every 5 minutes. If you
-      receive a 401 error, try refreshing. Currently if you pause, you must
-      refresh to resume.
-    </p>
+  <body id="body">
+    <div class="container center-align">
+        <h2>Server Status</h1>
+          <h5>
+            Last Checked: <span id="checkTime">0 seconds since last checked</span>
+          </h5>
+    </div>
+    <div class="container">
+    <table class="centered">
+      <thead>
+        <tr>
+          <th>Server</th>
+          <th>Status Code</th>
+          <th>Status Text</th>
+          <th>Response Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Web22</td>
+          <td id="web22-code"></td>
+          <td id="web22-text"></td>
+          <td id="web22-time"></td>
+        </tr>
+        <tr>
+          <td>Web25</td>
+          <td id="web25-code"></td>
+          <td id="web25-text"></td>
+          <td id="web25-time"></td>
+        </tr>
+        <tr>
+          <td>Web71</td>
+          <td id="web71-code"></td>
+          <td id="web71-text"></td>
+          <td id="web71-time"></td>
+        </tr>
+        <tr>
+          <td>Web75</td>
+          <td id="web75-code"></td>
+          <td id="web75-text"></td>
+          <td id="web75-time"></td>
+        </tr>
+        <tr>
+          <td>Web76</td>
+          <td id="web76-code"></td>
+          <td id="web76-text"></td>
+          <td id="web76-time"></td>
+        </tr>
+        <tr>
+          <td>Web77</td>
+          <td id="web77-code"></td>
+          <td id="web77-text"></td>
+          <td id="web77-time"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+    <div class="container center-align">
+      <button class="btn-small" onclick="reloadPage()">Refresh</button>
+      <button class="btn-small m-10" id="pauseButton" onclick="pause()">Pause</button>
+    </div>
+    
+    <div class="container center-align">
+        <p>
+            Currently servers are automatically checked every 5 minutes. If you
+            receive a 401 error, try refreshing. Currently if you pause, you must
+            refresh to resume.
+          </p>
+        <div class="switch">
+            <label>
+              Light
+              <input type="checkbox">
+              <span class="lever" id="darkToggle"></span>
+              Dark
+            </label>
+          </div>
+        </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="app.js"></script>
+    <script src="materialize.min.js"></script>
+    <script src="dev.js"></script>
   </body>
 </html>

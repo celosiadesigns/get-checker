@@ -1,15 +1,28 @@
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+.dark-mode {
+  background: #3a4254;
+  color: #e8eaf3;
 }
 
 .ok {
   color: green;
 }
 
+.ok-dark {
+  color: #00e676;
+}
+
+.meh {
+  color: #ef6c00;
+}
+
 .error {
   color: red;
+}
+
+.m-10 {
+  margin: 10px;
+}
+
+.mx-auto {
+  margin: auto;
 }
