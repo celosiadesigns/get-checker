@@ -5,6 +5,7 @@
     <title>Server Status</title>
     <link rel="stylesheet" href="materialize.min.css" />
     <link rel="stylesheet" href="index.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   </head>
   <body id="body">
     <div class="container center-align">
@@ -14,7 +15,7 @@
           </h5>
     </div>
     <div class="container">
-    <table class="centered">
+    <table class="centered highlight">
       <thead>
         <tr>
           <th>Server</th>
@@ -23,43 +24,7 @@
           <th>Response Time</th>
         </tr>
       </thead>
-      <tbody>
-        <tr id="web22">
-          <td>Web22</td>
-          <td id="web22-code"></td>
-          <td id="web22-text"></td>
-          <td id="web22-time"></td>
-        </tr>
-        <tr id="web25">
-          <td>Web25</td>
-          <td id="web25-code"></td>
-          <td id="web25-text"></td>
-          <td id="web25-time"></td>
-        </tr>
-        <tr id="web71">
-          <td>Web71</td>
-          <td id="web71-code"></td>
-          <td id="web71-text"></td>
-          <td id="web71-time"></td>
-        </tr>
-        <tr id="web75">
-          <td>Web75</td>
-          <td id="web75-code"></td>
-          <td id="web75-text"></td>
-          <td id="web75-time"></td>
-        </tr>
-        <tr id="web76">
-          <td>Web76</td>
-          <td id="web76-code"></td>
-          <td id="web76-text"></td>
-          <td id="web76-time"></td>
-        </tr>
-        <tr id="web77">
-          <td>Web77</td>
-          <td id="web77-code"></td>
-          <td id="web77-text"></td>
-          <td id="web77-time"></td>
-        </tr>
+      <tbody id="tbody">
       </tbody>
     </table>
   </div>
@@ -82,8 +47,35 @@
             </label>
           </div>
         </div>
+        <div class="fixed-action-btn">
+          <a class="btn-floating btn-large red tooltipped modal-trigger" href="#modal1" data-position="left" data-tooltip="Add a new server to watch"><i class="material-icons">add</i></a>
+        </div>
+
+        <div id="modal1" class="modal">
+            <div class="modal-content dark-mode">
+              <h4>Add Server</h4>
+              <input placeholder="Server Name such as localhost" id="server-name" type="text" class="dark-mode">
+              <input placeholder="URL to check such as http://localhost:3000" id="server-link" type="text" class="dark-mode">
+            </div>
+            <div class="modal-footer">
+              <a href="#!" class="modal-close waves-effect waves-green btn " onclick="addServer()">Add</a>
+            </div>
+          </div>
+
+          <div id="modal2" class="modal">
+              <div class="modal-content dark-mode">
+                <h4>Remove Server</h4>
+                <p>This will remove the selected server from being checked.</p>
+              </div>
+              <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn " onclick="removeServer()">Remove</a>
+              </div>
+            </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="materialize.min.js"></script>
-    <script src="app.js"></script>
+    <script>
+       M.AutoInit();
+    </script>
+    <script src="dev.js"></script>
   </body>
 </html>
