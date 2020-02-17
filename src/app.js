@@ -187,12 +187,8 @@ function darkMode(bool) {
     });
 
     //state needs to be opposite for function re-use
-    if (state.isDark === false) {
-      isDark = true;
-    } else {
-      localStorage.setItem('isDark', false);
-      isDark = false;
-    }
+    isDark = true;
+    localStorage.setItem('isDark', false);
   } else {
     body.classList.remove('dark-mode');
 
