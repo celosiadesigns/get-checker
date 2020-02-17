@@ -141,7 +141,11 @@ function checkServer(server, link) {
       let reqTime = reqEnd - reqStart;
 
       server.tr.classList.remove('error');
+      server.code.classList.remove('error');
+      server.text.classList.remove('error');
       server.tr.classList.add(ok);
+      server.code.classList.add(ok);
+      server.text.classList.add(ok);
 
       if (reqTime <= 300) {
         server.time.classList.add(ok);
@@ -162,11 +166,19 @@ function checkServer(server, link) {
       server.time.textContent = reqTime + 'ms';
     })
     .catch(error => {
-      server.code.textContent = error.response.status;
+      try {
+        server.code.textContent = error.response.status;
+        server.text.textContent = error.response.statusText;
+      } catch (error) {
+        server.code.textContent = 'ERR';
+        server.text.textContent = 'ERR';
+        server.time.textContent = 'ERR';
+      }
+      server.tr.classList.remove(ok);
+      server.tr.classList.add('error');
       server.code.classList.add('error');
-
-      server.text.textContent = error.response.statusText;
       server.text.classList.add('error');
+      server.time.classList.add('error');
 
       notifyMe('A server returned an error!');
     });
@@ -231,6 +243,8 @@ function darkMode(bool) {
 
     servers.forEach(server => {
       server.tr.classList.remove(ok);
+      server.code.classList.remove(ok);
+      server.text.classList.remove(ok);
       server.time.classList.remove(ok);
     });
 
@@ -239,6 +253,8 @@ function darkMode(bool) {
     servers.forEach(server => {
       server.tr.classList.add(ok);
       server.time.classList.add(ok);
+      server.code.classList.add(ok);
+      server.text.classList.add(ok);
     });
 
     //state needs to be opposite for function re-use
@@ -249,6 +265,8 @@ function darkMode(bool) {
 
     servers.forEach(server => {
       server.tr.classList.remove(ok);
+      server.code.classList.remove(ok);
+      server.text.classList.remove(ok);
       server.time.classList.remove(ok);
     });
 
@@ -257,6 +275,8 @@ function darkMode(bool) {
     servers.forEach(server => {
       server.tr.classList.add(ok);
       server.time.classList.add(ok);
+      server.code.classList.add(ok);
+      server.text.classList.add(ok);
     });
 
     isDark = false;
