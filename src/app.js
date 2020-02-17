@@ -1,8 +1,8 @@
 function init() {
-  storage = { ...localStorage };
-  let isStored = Object.keys(storage);
-  isStored.forEach(item => {
-    if (item != 'isDark') {
+  state.storage = { ...localStorage };
+  state.isStored = Object.keys(state.storage);
+  state.isStored.forEach(item => {
+    if (item != 'isDark' && item != 'paused') {
       let link = localStorage.getItem(item);
       addServer(item, link);
     }
@@ -12,6 +12,19 @@ function init() {
       toggle.setAttribute('checked', '');
     }
   });
+  if (state.paused === false) {
+    pause(state.paused);
+  } else {
+    refreshTime = setInterval(function() {
+      if (seconds === duration) {
+        checkTime.textContent = seconds + ' seconds since last checked';
+        reloadPage();
+      } else {
+        checkTime.textContent = seconds + ' seconds since last checked';
+        seconds++;
+      }
+    }, 1000);
+  }
 }
 
 function reloadPage() {
@@ -36,12 +49,31 @@ let serverName = document.getElementById('server-name');
 let serverLink = document.getElementById('server-link');
 
 let servers = [];
-let serverId = 0;
-let storage = {};
 let state = {
-  //paused: JSON.parse(localStorage.getItem('paused')),
+  storage: {},
+  isStored: [],
   isDark: JSON.parse(localStorage.getItem('isDark')),
+  paused: JSON.parse(localStorage.getItem('paused')),
 };
+
+function validate(name, link) {
+  let re = new RegExp('^(http|https)://');
+  let http = 'http://';
+  let testName = document.getElementById(name);
+  name = name;
+  link = link;
+
+  if (testName === null) {
+    if (re.test(link) === true) {
+      addServer(name, link);
+    } else {
+      link = http + link;
+      addServer(name, link);
+    }
+  } else {
+    alert('That server has already been added!');
+  }
+}
 
 function addServer(name, link) {
   name = name;
@@ -70,23 +102,33 @@ function addServer(name, link) {
   tdTime.setAttribute('id', `${name}-time`);
   tableRow.appendChild(tdTime);
 
+  let tdRemove = document.createElement('td');
+  let tdButton = document.createElement('button');
+  let buttonText = document.createTextNode('X');
+  tdRemove.appendChild(tdButton);
+  tdButton.appendChild(buttonText);
+  tdButton.setAttribute('onclick', `removeServer("${name}")`);
+  tdButton.setAttribute('class', 'btn-small red darken-2');
+
+  tableRow.appendChild(tdRemove);
+
   tableBody.appendChild(tableRow);
 
   let server = new Server(name, link);
 
   servers.push(server);
-  serverId++;
 
   if (storageAvailable('localStorage')) {
     localStorage.setItem(name, link);
-    storage = { ...localStorage };
+    state.storage = { ...localStorage };
   } else {
     alert(
       `Something went wrong adding your server! The server ${name} may not persist after closing the window!`
     );
   }
-
-  checkServer(server, link);
+  if (state.paused != false) {
+    checkServer(server, link);
+  }
 }
 
 function checkServer(server, link) {
@@ -130,24 +172,38 @@ function checkServer(server, link) {
     });
 }
 
-function removeServer(server) {
-  let index = server;
-  servers.splice(index, 1);
-  serverId--;
+function clearAll() {
+  state.isStored.forEach(item => {
+    if (item != 'isDark') {
+      localStorage.removeItem(item);
+    }
+  });
+  location.reload();
+}
+
+function removeServer(name) {
+  localStorage.removeItem(name);
+  location.reload();
 }
 
 let pauseButton = document.getElementById('pauseButton');
+let checkTime = document.getElementById('checkTime');
+let seconds = 0;
+let duration = 10;
+let refreshTime;
 let paused = false;
 
-function pause() {
-  if (paused === false) {
+function pause(bool) {
+  if (bool === false) {
     clearInterval(refreshTime);
 
     checkTime.textContent = 'PAUSED';
     pauseButton.textContent = 'Unpause';
 
-    paused = !paused;
-  } else {
+    //state needs to be opposite for function re-use
+    paused = true;
+    localStorage.setItem('paused', false);
+  } else if (bool === true) {
     refreshTime = setInterval(function() {
       if (seconds === duration) {
         checkTime.textContent = seconds + ' seconds since last checked';
@@ -157,10 +213,9 @@ function pause() {
         seconds++;
       }
     }, 1000);
-
+    paused = false;
+    localStorage.setItem('paused', true);
     pauseButton.textContent = 'Pause';
-
-    paused = !paused;
   }
 }
 
@@ -212,20 +267,6 @@ function darkMode(bool) {
 darkToggle.addEventListener('click', () => {
   darkMode(isDark);
 });
-
-let checkTime = document.getElementById('checkTime');
-let seconds = 0;
-let duration = 10;
-
-let refreshTime = setInterval(function() {
-  if (seconds === duration) {
-    checkTime.textContent = seconds + ' seconds since last checked';
-    reloadPage();
-  } else {
-    checkTime.textContent = seconds + ' seconds since last checked';
-    seconds++;
-  }
-}, 1000);
 
 //Notices
 

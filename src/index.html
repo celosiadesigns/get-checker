@@ -22,6 +22,7 @@
           <th>Status Code</th>
           <th>Status Text</th>
           <th>Response Time</th>
+          <th>Remove</th>
         </tr>
       </thead>
       <tbody id="tbody">
@@ -30,13 +31,13 @@
   </div>
     <div class="container center-align">
       <button class="btn-small" onclick="reloadPage()">Refresh</button>
-      <button class="btn-small m-10" id="pauseButton" onclick="pause()">Pause</button>
+      <button class="btn-small m-10" id="pauseButton" onclick="pause(paused)">Pause</button>
+      <button class="btn-small red" onclick="clearAll()">Clear All</button>
     </div>
     
     <div class="container center-align">
         <p>
-            Currently servers are automatically checked every 5 minutes. If you
-            receive a 401 error, try refreshing. Refreshing while paused does not resume automatic checking. You must unpause. 
+            Currently servers are automatically checked every 5 minutes. The Clear All button will remove ALL servers immediately, use with caution. 
           </p>
         <div class="switch">
             <label>
@@ -58,7 +59,7 @@
               <input placeholder="URL to check such as http://localhost:3000" id="server-link" type="text" class="dark-mode">
             </div>
             <div class="modal-footer">
-              <a href="#!" class="modal-close waves-effect waves-green btn " onclick="addServer(serverName.value, serverLink.value)">Add</a>
+              <a href="#!" class="modal-close waves-effect waves-green btn " onclick="validate(serverName.value, serverLink.value)">Add</a>
             </div>
           </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
