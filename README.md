@@ -1,4 +1,4 @@
-# Server Checker
+# Get Checker
 
 ### Todo
 
