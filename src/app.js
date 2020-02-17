@@ -1,11 +1,139 @@
+function init() {
+  storage = { ...localStorage };
+  let isStored = Object.keys(storage);
+  isStored.forEach(item => {
+    if (item != 'isDark') {
+      let link = localStorage.getItem(item);
+      addServer(item, link);
+    }
+    if (state.isDark === false) {
+      darkMode(state.isDark);
+      let toggle = document.getElementById('dark-switch');
+      toggle.setAttribute('checked', '');
+    }
+  });
+}
+
 function reloadPage() {
   seconds = 0;
-  reqStart = new Date().getTime();
-  web22();
-  web25();
-  web71();
-  web75();
-  web76();
+  servers.forEach(server => {
+    checkServer(server, server.link);
+  });
+}
+
+class Server {
+  constructor(name, link) {
+    this.name = name;
+    this.link = link;
+    this.tr = document.getElementById(name);
+    this.code = document.getElementById(name + '-code');
+    this.text = document.getElementById(name + '-text');
+    this.time = document.getElementById(name + '-time');
+  }
+}
+
+let serverName = document.getElementById('server-name');
+let serverLink = document.getElementById('server-link');
+
+let servers = [];
+let serverId = 0;
+let storage = {};
+let state = {
+  //paused: JSON.parse(localStorage.getItem('paused')),
+  isDark: JSON.parse(localStorage.getItem('isDark')),
+};
+
+function addServer(name, link) {
+  name = name;
+  link = link;
+
+  let tableBody = document.getElementById('tbody');
+
+  let tableRow = document.createElement('tr');
+  tableRow.setAttribute('id', `${name}`);
+
+  let tdName = document.createElement('td');
+  tdName.setAttribute('id', `${name}-name`);
+  let nameText = document.createTextNode(`${name}`);
+  tdName.appendChild(nameText);
+  tableRow.appendChild(tdName);
+
+  let tdCode = document.createElement('td');
+  tdCode.setAttribute('id', `${name}-code`);
+  tableRow.appendChild(tdCode);
+
+  let tdText = document.createElement('td');
+  tdText.setAttribute('id', `${name}-text`);
+  tableRow.appendChild(tdText);
+
+  let tdTime = document.createElement('td');
+  tdTime.setAttribute('id', `${name}-time`);
+  tableRow.appendChild(tdTime);
+
+  tableBody.appendChild(tableRow);
+
+  let server = new Server(name, link);
+
+  servers.push(server);
+  serverId++;
+
+  if (storageAvailable('localStorage')) {
+    localStorage.setItem(name, link);
+    storage = { ...localStorage };
+  } else {
+    alert(
+      `Something went wrong adding your server! The server ${name} may not persist after closing the window!`
+    );
+  }
+
+  checkServer(server, link);
+}
+
+function checkServer(server, link) {
+  let reqStart = new Date().getTime();
+
+  axios
+    .get(link)
+    .then(response => {
+      let reqEnd = new Date().getTime();
+      let reqTime = reqEnd - reqStart;
+
+      server.tr.classList.remove('error');
+      server.tr.classList.add(ok);
+
+      if (reqTime <= 300) {
+        server.time.classList.add(ok);
+        server.time.classList.remove('meh');
+        server.time.classList.remove('error');
+      } else if (reqTime <= 1000) {
+        server.time.classList.add('meh');
+        server.time.classList.remove(ok);
+        server.time.classList.remove('error');
+      } else {
+        server.time.classList.add('error');
+        server.time.classList.remove('meh');
+        server.time.classList.remove(ok);
+      }
+
+      server.code.textContent = response.status;
+      server.text.textContent = response.statusText;
+      server.time.textContent = reqTime + 'ms';
+    })
+    .catch(error => {
+      server.code.textContent = error.response.status;
+      server.code.classList.add('error');
+
+      server.text.textContent = error.response.statusText;
+      server.text.classList.add('error');
+
+      notifyMe('A server returned an error!');
+    });
+}
+
+function removeServer(server) {
+  let index = server;
+  servers.splice(index, 1);
+  serverId--;
 }
 
 let pauseButton = document.getElementById('pauseButton');
@@ -42,71 +170,56 @@ let darkToggle = document.getElementById('darkToggle');
 let isDark = false;
 let ok = 'ok';
 
-darkToggle.addEventListener('click', () => {
-  if (isDark === false) {
+function darkMode(bool) {
+  if (bool === false) {
     body.classList.add('dark-mode');
-    web22tr.classList.remove(ok);
-    web25tr.classList.remove(ok);
-    web71tr.classList.remove(ok);
-    web75tr.classList.remove(ok);
-    web76tr.classList.remove(ok);
 
-    web22Time.classList.remove(ok);
-    web25Time.classList.remove(ok);
-    web71Time.classList.remove(ok);
-    web75Time.classList.remove(ok);
-    web76Time.classList.remove(ok);
+    servers.forEach(server => {
+      server.tr.classList.remove(ok);
+      server.time.classList.remove(ok);
+    });
 
     ok = 'ok-dark';
 
-    web22tr.classList.add(ok);
-    web25tr.classList.add(ok);
-    web71tr.classList.add(ok);
-    web75tr.classList.add(ok);
-    web76tr.classList.add(ok);
+    servers.forEach(server => {
+      server.tr.classList.add(ok);
+      server.time.classList.add(ok);
+    });
 
-    web22Time.classList.add(ok);
-    web25Time.classList.add(ok);
-    web71Time.classList.add(ok);
-    web75Time.classList.add(ok);
-    web76Time.classList.add(ok);
-
-    isDark = !isDark;
+    //state needs to be opposite for function re-use
+    if (state.isDark === false) {
+      isDark = true;
+    } else {
+      localStorage.setItem('isDark', false);
+      isDark = false;
+    }
   } else {
     body.classList.remove('dark-mode');
-    web22tr.classList.remove(ok);
-    web25tr.classList.remove(ok);
-    web71tr.classList.remove(ok);
-    web75tr.classList.remove(ok);
-    web76tr.classList.remove(ok);
 
-    web22Time.classList.remove(ok);
-    web25Time.classList.remove(ok);
-    web71Time.classList.remove(ok);
-    web75Time.classList.remove(ok);
-    web76Time.classList.remove(ok);
+    servers.forEach(server => {
+      server.tr.classList.remove(ok);
+      server.time.classList.remove(ok);
+    });
 
     ok = 'ok';
 
-    web22tr.classList.add(ok);
-    web25tr.classList.add(ok);
-    web71tr.classList.add(ok);
-    web75tr.classList.add(ok);
-    web76tr.classList.add(ok);
+    servers.forEach(server => {
+      server.tr.classList.add(ok);
+      server.time.classList.add(ok);
+    });
 
-    web22Time.classList.add(ok);
-    web25Time.classList.add(ok);
-    web71Time.classList.add(ok);
-    web75Time.classList.add(ok);
-    web76Time.classList.add(ok);
-
-    isDark = !isDark;
+    isDark = false;
+    localStorage.setItem('isDark', true);
   }
+}
+
+darkToggle.addEventListener('click', () => {
+  darkMode(isDark);
 });
 
 let checkTime = document.getElementById('checkTime');
 let seconds = 0;
-let duration = 300;
+let duration = 10;
 
 let refreshTime = setInterval(function() {
   if (seconds === duration) {
@@ -117,8 +230,6 @@ let refreshTime = setInterval(function() {
     seconds++;
   }
 }, 1000);
-
-let reqStart = new Date().getTime();
 
 //Notices
 
@@ -136,235 +247,34 @@ function notifyMe(notice) {
   }
 }
 
-//web 22
+// localStorage
 
-const web22tr = document.getElementById('web22');
-const web22Code = document.getElementById('web22-code');
-const web22Text = document.getElementById('web22-text');
-const web22Time = document.getElementById('web22-time');
-
-function web22() {
-  axios
-    .get('https://web22.gkg.net/cpanel')
-    .then(response => {
-      let reqEnd = new Date().getTime();
-      let reqTime = reqEnd - reqStart;
-
-      web22tr.classList.remove('error');
-      web22tr.classList.add(ok);
-
-      if (reqTime <= 300) {
-        web22Time.classList.add(ok);
-        web22Time.classList.remove('meh');
-        web22Time.classList.remove('error');
-      } else if (reqTime <= 1000) {
-        web22Time.classList.add('meh');
-        web22Time.classList.remove(ok);
-        web22Time.classList.remove('error');
-      } else {
-        web22Time.classList.add('error');
-        web22Time.classList.remove('meh');
-        web22Time.classList.remove(ok);
-      }
-
-      web22Code.textContent = response.status;
-      web22Text.textContent = response.statusText;
-      web22Time.textContent = reqTime + 'ms';
-    })
-    .catch(error => {
-      web22Code.textContent = error.response.status;
-      web22Code.classList.add('error');
-
-      web22Text.textContent = error.response.statusText;
-      web22Text.classList.add('error');
-
-      notifyMe('A server returned an error!');
-    });
-}
-
-// web 25
-
-const web25tr = document.getElementById('web25');
-const web25Code = document.getElementById('web25-code');
-const web25Text = document.getElementById('web25-text');
-const web25Time = document.getElementById('web25-time');
-
-function web25() {
-  axios
-    .get('https://web25.gkg.net/cpanel')
-    .then(response => {
-      let reqEnd = new Date().getTime();
-      let reqTime = reqEnd - reqStart;
-
-      web25tr.classList.remove('error');
-      web25tr.classList.add(ok);
-
-      if (reqTime <= 300) {
-        web25Time.classList.add(ok);
-        web25Time.classList.remove('meh');
-        web25Time.classList.remove('error');
-      } else if (reqTime <= 1000) {
-        web25Time.classList.add('meh');
-        web25Time.classList.remove(ok);
-        web25Time.classList.remove('error');
-      } else {
-        web25Time.classList.add('error');
-        web25Time.classList.remove('meh');
-        web25Time.classList.remove(ok);
-      }
-
-      web25Code.textContent = response.status;
-      web25Text.textContent = response.statusText;
-      web25Time.textContent = reqTime + 'ms';
-    })
-    .catch(error => {
-      web25Code.textContent = error.response.status;
-      web25Code.classList.add('error');
-
-      web25Text.textContent = error.response.statusText;
-      web25Text.classList.add('error');
-
-      notifyMe('A server returned an error!');
-    });
-}
-
-//web 71
-
-const web71tr = document.getElementById('web71');
-const web71Code = document.getElementById('web71-code');
-const web71Text = document.getElementById('web71-text');
-const web71Time = document.getElementById('web71-time');
-
-function web71() {
-  axios
-    .get('https://web71.gkg.net/cpanel')
-    .then(response => {
-      let reqEnd = new Date().getTime();
-      let reqTime = reqEnd - reqStart;
-
-      web71tr.classList.remove('error');
-      web71tr.classList.add(ok);
-
-      if (reqTime <= 300) {
-        web71Time.classList.add(ok);
-        web71Time.classList.remove('meh');
-        web71Time.classList.remove('error');
-      } else if (reqTime <= 1000) {
-        web71Time.classList.add('meh');
-        web71Time.classList.remove(ok);
-        web71Time.classList.remove('error');
-      } else {
-        web71Time.classList.add('error');
-        web71Time.classList.remove('meh');
-        web71Time.classList.remove(ok);
-      }
-
-      web71Code.textContent = response.status;
-      web71Text.textContent = response.statusText;
-      web71Time.textContent = reqTime + 'ms';
-    })
-    .catch(error => {
-      web71Code.textContent = error.response.status;
-      web71Code.classList.add('error');
-
-      web71Text.textContent = error.response.statusText;
-      web71Text.classList.add('error');
-
-      notifyMe('A server returned an error!');
-    });
-}
-
-//web 75
-
-const web75tr = document.getElementById('web75');
-const web75Code = document.getElementById('web75-code');
-const web75Text = document.getElementById('web75-text');
-const web75Time = document.getElementById('web75-time');
-
-function web75() {
-  axios
-    .get('https://web75.gkg.net/cpanel')
-    .then(response => {
-      let reqEnd = new Date().getTime();
-      let reqTime = reqEnd - reqStart;
-
-      web75tr.classList.remove('error');
-      web75tr.classList.add(ok);
-
-      if (reqTime <= 300) {
-        web75Time.classList.add(ok);
-        web75Time.classList.remove('meh');
-        web75Time.classList.remove('error');
-      } else if (reqTime <= 1000) {
-        web75Time.classList.add('meh');
-        web75Time.classList.remove(ok);
-        web75Time.classList.remove('error');
-      } else {
-        web75Time.classList.add('error');
-        web75Time.classList.remove('meh');
-        web75Time.classList.remove(ok);
-      }
-
-      web75Code.textContent = response.status;
-      web75Text.textContent = response.statusText;
-      web75Time.textContent = reqTime + 'ms';
-    })
-    .catch(error => {
-      web75Code.textContent = error.response.status;
-      web75Code.classList.add('error');
-
-      web75Text.textContent = error.response.statusText;
-      web75Text.classList.add('error');
-
-      notifyMe('A server returned an error!');
-    });
-}
-
-//web 76
-
-const web76tr = document.getElementById('web76');
-const web76Code = document.getElementById('web76-code');
-const web76Text = document.getElementById('web76-text');
-const web76Time = document.getElementById('web76-time');
-
-function web76() {
-  axios
-    .get('https://web76.gkg.net/cpanel')
-    .then(response => {
-      let reqEnd = new Date().getTime();
-      let reqTime = reqEnd - reqStart;
-
-      web76tr.classList.remove('error');
-      web76tr.classList.add(ok);
-
-      if (reqTime <= 300) {
-        web76Time.classList.add(ok);
-        web76Time.classList.remove('meh');
-        web76Time.classList.remove('error');
-      } else if (reqTime <= 1000) {
-        web76Time.classList.add('meh');
-        web76Time.classList.remove(ok);
-        web76Time.classList.remove('error');
-      } else {
-        web22Time.classList.add('error');
-        web76Time.classList.remove('meh');
-        web76Time.classList.remove(ok);
-      }
-
-      web76Code.textContent = response.status;
-      web76Text.textContent = response.statusText;
-      web76Time.textContent = reqTime + 'ms';
-    })
-    .catch(error => {
-      web76Code.textContent = error.response.status;
-      web76Code.classList.add('error');
-
-      web76Text.textContent = error.response.statusText;
-      web76Text.classList.add('error');
-
-      notifyMe('A server returned an error!');
-    });
+function storageAvailable(type) {
+  var storage;
+  try {
+    storage = window[type];
+    var x = '__storage_test__';
+    storage.setItem(x, x);
+    storage.removeItem(x);
+    return true;
+  } catch (e) {
+    return (
+      e instanceof DOMException &&
+      // everything except Firefox
+      (e.code === 22 ||
+        // Firefox
+        e.code === 1014 ||
+        // test name field too, because code might not be present
+        // everything except Firefox
+        e.name === 'QuotaExceededError' ||
+        // Firefox
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+      // acknowledge QuotaExceededError only if there's something already stored
+      storage &&
+      storage.length !== 0
+    );
+  }
 }
 
 //init
-reloadPage();
+init();

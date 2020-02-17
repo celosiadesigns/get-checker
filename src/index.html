@@ -41,7 +41,7 @@
         <div class="switch">
             <label>
               Light
-              <input type="checkbox">
+              <input id="dark-switch" type="checkbox">
               <span class="lever" id="darkToggle"></span>
               Dark
             </label>
@@ -58,24 +58,14 @@
               <input placeholder="URL to check such as http://localhost:3000" id="server-link" type="text" class="dark-mode">
             </div>
             <div class="modal-footer">
-              <a href="#!" class="modal-close waves-effect waves-green btn " onclick="addServer()">Add</a>
+              <a href="#!" class="modal-close waves-effect waves-green btn " onclick="addServer(serverName.value, serverLink.value)">Add</a>
             </div>
           </div>
-
-          <div id="modal2" class="modal">
-              <div class="modal-content dark-mode">
-                <h4>Remove Server</h4>
-                <p>This will remove the selected server from being checked.</p>
-              </div>
-              <div class="modal-footer">
-                <a href="#!" class="modal-close waves-effect waves-green btn " onclick="removeServer()">Remove</a>
-              </div>
-            </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="materialize.min.js"></script>
     <script>
        M.AutoInit();
     </script>
-    <script src="dev.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>
