@@ -201,7 +201,7 @@ function removeServer(name) {
 let pauseButton = document.getElementById('pauseButton');
 let checkTime = document.getElementById('checkTime');
 let seconds = 0;
-let duration = 10;
+let duration = 300;
 let refreshTime;
 let paused = false;
 
